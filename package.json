@@ -1,0 +1,47 @@
+{
+  "name": "koishi-plugin-dcqq-bridge-mention",
+  "version": "0.1.2",
+  "description": "扩展 koishi-plugin-dcqq-bridge，实现真正的跨平台 @：@[qq:...] 与 @[dc:...]",
+  "main": "lib/index.js",
+  "files": [
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node test/self-test.js",
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "peerDependencies": {
+    "koishi": "^4.18.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "@koishijs/scripts": "4.5.2",
+    "koishi-plugin-adapter-onebot": "latest"
+  },
+  "keywords": [
+    "koishi",
+    "plugin",
+    "discord",
+    "qq",
+    "bridge",
+    "mention"
+  ],
+  "koishi": {
+    "description": {
+      "zh": "为 dcqq-bridge 补上真正的跨平台 @：@[qq:...] 与 @[dc:...]，无需预先配置映射",
+      "en": "Real cross-platform mentions for dcqq-bridge: @[qq:...] and @[dc:...], no mapping config needed"
+    },
+    "inject": {
+      "required": []
+    },
+    "using": []
+  }
+}
