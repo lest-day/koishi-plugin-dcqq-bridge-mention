@@ -37,16 +37,16 @@ function httpStub(...args) {
   calls.http.push({ method: call.method, url: call.url, config: call.config })
   const url = call.url
   if (call.method === 'GET' && /^\/webhooks\/\d+\/[^/?]+$/.test(url)) return { data: { id: '123', channel_id: '999' } }
-  if (call.method === 'GET' && /^\/channels\/\d+$/.test(url)) return { data: { id: '999', guild_id: '555000111' } }
+  if (call.method === 'GET' && /^\/channels\/\d+$/.test(url)) return { data: { id: '999', guild_id: '345678901234567890' } }
   if (call.method === 'GET' && /\/members\/search/.test(url)) {
     if (/不存在/.test(decodeURIComponent(url))) return { data: [] }
-    return { data: [{ user: { id: '848033491484278785', username: 'lestday233', global_name: 'Lestday' }, nick: '爱丽丝' }] }
+    return { data: [{ user: { id: '123456789012345678', username: 'example_user', global_name: 'Example User' }, nick: '示例用户甲' }] }
   }
   if (call.method === 'GET' && /\/members\?/.test(url)) {
     return {
       data: [
-        { user: { id: '848033491484278785', username: 'lestday233', global_name: 'Lestday' }, nick: '爱丽丝' },
-        { user: { id: '111122223333444455', username: 'bob', global_name: 'Bob' }, nick: '鲍勃' },
+        { user: { id: '123456789012345678', username: 'example_user', global_name: 'Example User' }, nick: '示例用户甲' },
+        { user: { id: '234567890123456789', username: 'example_b', global_name: 'Example B' }, nick: '示例用户乙' },
       ],
     }
   }
@@ -71,7 +71,7 @@ function types(elements) {
 
   const qqBot = {
     platform: 'onebot',
-    selfId: '2871244857',
+    selfId: '345678901',
     sendMessage: async (channelId, content) => {
       calls.qq.push({ channelId, content })
       return ['msg-1']
@@ -84,7 +84,7 @@ function types(elements) {
         await new Promise(() => {})
       }
       await new Promise((r) => setTimeout(r, 30))
-      return { data: [{ user: { id: '111222333', name: '小明' }, nick: '小明-测试' }] }
+      return { data: [{ user: { id: '234567890', name: '示例昵称' }, nick: '示例群名片' }] }
     },
   }
   const stats = { qqMemberFetches: 0 }
@@ -117,15 +117,15 @@ function types(elements) {
   const botHttp = app.http.extend({ headers: { Authorization: 'Bot x' } })
 
   console.log('=== 1. Discord → QQ 数字 ID ===')
-  await qqBot.sendMessage('123456', [h.text('[桥 - 张三]\nhi @[qq:976877916] there')])
+  await qqBot.sendMessage('123456', [h.text('[桥 - 示例用户]\nhi @[qq:123456789] there')])
   console.log(types(calls.qq.at(-1).content))
 
   console.log('\n=== 2. Discord → QQ 群名片（适配器真实形状 user.name/nick）===')
-  await qqBot.sendMessage('123456', [h.text('@[qq:小明-测试] 早上好')])
+  await qqBot.sendMessage('123456', [h.text('@[qq:示例群名片] 早上好')])
   console.log(types(calls.qq.at(-1).content))
 
   console.log('\n=== 3. Discord → QQ 群昵称 ===')
-  await qqBot.sendMessage('123456', [h.text('@[qq:小明] 在吗')])
+  await qqBot.sendMessage('123456', [h.text('@[qq:示例昵称] 在吗')])
   console.log(types(calls.qq.at(-1).content))
 
   console.log('\n=== 3b. Discord → QQ 找不到名字 → @未知用户 ===')
@@ -135,14 +135,14 @@ function types(elements) {
   console.log('\n=== 4. QQ → Discord 数字 ID（已转义）===')
   await botHttp('/channels/999/messages', {
     method: 'POST',
-    data: { content: 'hi @\\[dc:848033491484278785\\] x', allowed_mentions: { parse: [] } },
+    data: { content: 'hi @\\[dc:123456789012345678\\] x', allowed_mentions: { parse: [] } },
   })
   console.log(JSON.stringify(calls.http.at(-1).config.data))
 
   console.log('\n=== 5. QQ → Discord 用户名（webhook 模式）===')
   await botHttp('/webhooks/123/abc?wait=true', {
     method: 'POST',
-    data: { content: '@[dc:lestday233] ping', allowed_mentions: { parse: [] } },
+    data: { content: '@[dc:example_user] ping', allowed_mentions: { parse: [] } },
   })
   console.log(JSON.stringify(calls.http.at(-1).config.data))
 
@@ -160,45 +160,45 @@ function types(elements) {
   // ---------------------------------------------------------------- 黑名单
 
   console.log('\n=== 7. 禁止@对方（按 QQ 号）：删 @ 但保留消息 ===')
-  start({ blacklist: { forbidMention: ['976877916'] } })
-  await qqBot.sendMessage('123456', [h.text('@[qq:976877916] 大家好')])
+  start({ blacklist: { forbidMention: ['123456789'] } })
+  await qqBot.sendMessage('123456', [h.text('@[qq:123456789] 大家好')])
   console.log(types(calls.qq.at(-1).content))
 
   console.log('\n=== 8. 禁止@对方（按群名片）：删 @ 但保留消息 ===')
-  start({ blacklist: { forbidMention: ['小明-测试'] } })
-  await qqBot.sendMessage('123456', [h.text('请 @[qq:小明-测试] 看一下')])
+  start({ blacklist: { forbidMention: ['示例群名片'] } })
+  await qqBot.sendMessage('123456', [h.text('请 @[qq:示例群名片] 看一下')])
   console.log(types(calls.qq.at(-1).content))
 
   console.log('\n=== 9. 禁止被@（QQ → DC，按 DC 用户名）：删 @ 但保留消息 ===')
-  start({ blacklist: { forbidBeingMentioned: ['lestday233'] } })
+  start({ blacklist: { forbidBeingMentioned: ['example_user'] } })
   await botHttp('/channels/999/messages', {
     method: 'POST',
-    data: { content: '@[dc:lestday233] 你好', allowed_mentions: { parse: [] } },
+    data: { content: '@[dc:example_user] 你好', allowed_mentions: { parse: [] } },
   })
   console.log(JSON.stringify(calls.http.at(-1).config.data))
 
   console.log('\n=== 10. 禁止被@（QQ → DC，按 DC 数字 ID）===')
-  start({ blacklist: { forbidBeingMentioned: ['dc:848033491484278785'] } })
+  start({ blacklist: { forbidBeingMentioned: ['dc:123456789012345678'] } })
   await botHttp('/channels/999/messages', {
     method: 'POST',
-    data: { content: 'hi @\\[dc:848033491484278785\\] there', allowed_mentions: { parse: [] } },
+    data: { content: 'hi @\\[dc:123456789012345678\\] there', allowed_mentions: { parse: [] } },
   })
   console.log(JSON.stringify(calls.http.at(-1).config.data))
 
   console.log('\n=== 11. 整个消息只有一个被拉黑的 @（不吞消息、不空消息）===')
-  start({ blacklist: { forbidMention: ['976877916'] } })
-  await qqBot.sendMessage('123456', [h.text('@[qq:976877916]')])
+  start({ blacklist: { forbidMention: ['123456789'] } })
+  await qqBot.sendMessage('123456', [h.text('@[qq:123456789]')])
   console.log('QQ 端：', types(calls.qq.at(-1).content))
-  start({ blacklist: { forbidBeingMentioned: ['848033491484278785'] } })
+  start({ blacklist: { forbidBeingMentioned: ['123456789012345678'] } })
   await botHttp('/channels/999/messages', {
     method: 'POST',
-    data: { content: '@\\[dc:848033491484278785\\]', allowed_mentions: { parse: [] } },
+    data: { content: '@\\[dc:123456789012345678\\]', allowed_mentions: { parse: [] } },
   })
   console.log('DC 端：', JSON.stringify(calls.http.at(-1).config.data))
 
   console.log('\n=== 12. 黑名单不影响其他人 ===')
-  start({ blacklist: { forbidMention: ['976877916'] } })
-  await qqBot.sendMessage('123456', [h.text('@[qq:976877916] 和 @[qq:555000] 一起')])
+  start({ blacklist: { forbidMention: ['123456789'] } })
+  await qqBot.sendMessage('123456', [h.text('@[qq:123456789] 和 @[qq:987654321] 一起')])
   console.log(types(calls.qq.at(-1).content))
 
   // ------------------------------------------------------------ 发送效率
@@ -207,10 +207,10 @@ function types(elements) {
   start({})
   const before13 = stats.qqMemberFetches
   await Promise.all(
-    Array.from({ length: 8 }, (_, i) => qqBot.sendMessage('888001', [h.text(`@[qq:小明-测试] 第${i}条`)]))
+    Array.from({ length: 8 }, (_, i) => qqBot.sendMessage('888001', [h.text(`@[qq:示例群名片] 第${i}条`)]))
   )
   console.log('8 条并发消息 → 实际拉成员表次数：', stats.qqMemberFetches - before13, '(应为 1)')
-  console.log('每条都解析成功：', calls.qq.slice(-8).every((c) => types(c.content).includes('at(111222333)')) ? 'OK' : 'FAIL')
+  console.log('每条都解析成功：', calls.qq.slice(-8).every((c) => types(c.content).includes('at(234567890)')) ? 'OK' : 'FAIL')
 
   console.log('\n=== 14. 成员表接口卡住时不拖住发送（超时降级）===')
   start({ efficiency: { lookupTimeoutMs: 200 } })
@@ -228,7 +228,7 @@ function types(elements) {
   const afterPrewarm = stats.qqMemberFetches
   console.log('普通消息引发的后台预取：', afterPrewarm - before15, '次')
   const t15 = Date.now()
-  await qqBot.sendMessage('888002', [h.text('@[qq:小明-测试] 现在 @')])
+  await qqBot.sendMessage('888002', [h.text('@[qq:示例群名片] 现在 @')])
   console.log('之后名字 @ 耗时：', Date.now() - t15, 'ms', '（应几乎为 0，命中缓存）')
   console.log('结果：', types(calls.qq.at(-1).content))
   console.log('没有额外再拉成员表：', stats.qqMemberFetches === afterPrewarm ? 'OK' : `FAIL(+${stats.qqMemberFetches - afterPrewarm})`)
@@ -236,7 +236,7 @@ function types(elements) {
   console.log('\n=== 16. 数字 ID 完全不触发成员表查询（关掉预取以隔离）===')
   start({ efficiency: { prewarm: false } })
   const before16 = stats.qqMemberFetches
-  await qqBot.sendMessage('888003', [h.text('@[qq:976877916] 你好')])
+  await qqBot.sendMessage('888003', [h.text('@[qq:123456789] 你好')])
   console.log('拉成员表次数：', stats.qqMemberFetches - before16, '(应为 0，数字 ID 不查表)')
   console.log('结果：', types(calls.qq.at(-1).content))
 

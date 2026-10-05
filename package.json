@@ -1,7 +1,15 @@
 {
   "name": "koishi-plugin-dcqq-bridge-mention",
   "version": "0.1.2",
+  "author": {
+    "name": "lest-day",
+    "email": "email@lestday233.eu.org"
+  },
   "description": "扩展 koishi-plugin-dcqq-bridge，实现真正的跨平台 @：@[qq:...] 与 @[dc:...]",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lest-day/koishi-plugin-dcqq-bridge-mention.git"
+  },
   "main": "lib/index.js",
   "files": [
     "lib",
@@ -14,6 +22,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "publish": "npm publish --registry=https://registry.npmjs.org/",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node test/self-test.js",
     "prepublishOnly": "npm run typecheck && npm run build"
@@ -22,9 +31,9 @@
     "koishi": "^4.18.0"
   },
   "devDependencies": {
-    "typescript": "^5.6.2",
     "@koishijs/scripts": "4.5.2",
-    "koishi-plugin-adapter-onebot": "latest"
+    "koishi-plugin-adapter-onebot": "latest",
+    "typescript": "^5.6.2"
   },
   "keywords": [
     "koishi",
