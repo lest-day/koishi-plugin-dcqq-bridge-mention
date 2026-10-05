@@ -1,6 +1,6 @@
 {
   "name": "koishi-plugin-dcqq-bridge-mention",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": {
     "name": "lest-day",
     "email": "email@lestday233.eu.org"
@@ -8,7 +8,7 @@
   "description": "扩展 koishi-plugin-dcqq-bridge，实现真正的跨平台 @：@[qq:...] 与 @[dc:...]",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lest-day/koishi-plugin-dcqq-bridge-mention.git"
+    "url": "git+https://github.com/lest-day/koishi-plugin-dcqq-bridge-mention.git"
   },
   "main": "lib/index.js",
   "files": [
